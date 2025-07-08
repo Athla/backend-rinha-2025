@@ -10,3 +10,8 @@ services:
     environment:
       APP_ENV: ${APP_ENV}
       PORT: ${PORT}
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./
+          target: /usr/src/app 

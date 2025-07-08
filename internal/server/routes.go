@@ -1,7 +1,9 @@
 package server
 
 import (
+	"backend/internal/models"
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -20,9 +22,38 @@ func (s *Server) RegisterRoutes() http.Handler {
 		MaxAge:           300,
 	}))
 
+	e.GET("/ping", s.PingHandler)
 	e.GET("/", s.HelloWorldHandler)
 
+	e.POST("/payments", s.PaymentHandler)
+	e.GET("/payments-summary", s.PaymentsSummaryHandler)
+
 	return e
+}
+
+func (s *Server) PingHandler(c echo.Context) error {
+	return c.JSON(http.StatusOK, models.SuccessResponse{
+		Message:   "pong",
+		Timestamp: time.Now(),
+	})
+}
+
+func (s *Server) PaymentHandler(c echo.Context) error {
+	// recebendo uma struct/payload -> models.Payment
+
+	return c.JSON(http.StatusOK, models.SuccessResponse{
+		Message:   "Everything working as intenteded in payments endpoint",
+		Timestamp: time.Now(),
+	})
+}
+
+func (s *Server) PaymentsSummaryHandler(c echo.Context) error {
+
+	return c.JSON(http.StatusOK, models.SuccessResponse{
+		Message:   "Everything working as intenteded in the endpoint payments summary",
+		Timestamp: time.Now(),
+	})
+
 }
 
 func (s *Server) HelloWorldHandler(c echo.Context) error {
