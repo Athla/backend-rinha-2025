@@ -1,6 +1,6 @@
 # Project backend
 
-One Paragraph of project description goes here
+Implementação do desafio Rinha de Backend!
 
 ## Getting Started
 
