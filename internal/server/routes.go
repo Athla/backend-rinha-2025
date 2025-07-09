@@ -34,16 +34,17 @@ func (s *Server) RegisterRoutes() http.Handler {
 func (s *Server) PingHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, models.SuccessResponse{
 		Message:   "pong",
-		Timestamp: time.Now(),
+		Timestamp: time.Now().Format(time.RFC3339),
 	})
 }
 
 func (s *Server) PaymentHandler(c echo.Context) error {
 	// recebendo uma struct/payload -> models.Payment
+	// mandar pro service de pagamentos, retornar a resposta
 
 	return c.JSON(http.StatusOK, models.SuccessResponse{
 		Message:   "Everything working as intenteded in payments endpoint",
-		Timestamp: time.Now(),
+		Timestamp: time.Now().Format(time.RFC3339),
 	})
 }
 
@@ -51,7 +52,7 @@ func (s *Server) PaymentsSummaryHandler(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, models.SuccessResponse{
 		Message:   "Everything working as intenteded in the endpoint payments summary",
-		Timestamp: time.Now(),
+		Timestamp: time.Now().Format(time.RFC3339),
 	})
 
 }
