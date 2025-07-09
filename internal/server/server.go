@@ -2,7 +2,7 @@ package server
 
 import (
 	"backend/config"
-	"backend/internal/services"
+	"backend/internal/services/payments"
 	"fmt"
 	"net/http"
 	"os"
@@ -15,13 +15,13 @@ import (
 type Server struct {
 	cfg            *config.Config
 	port           int
-	paymentService *services.PaymentService
+	paymentService *payments.Service
 }
 
 func NewServer() *http.Server {
 	port, _ := strconv.Atoi(os.Getenv("PORT"))
 	cfg := config.New()
-	svc := services.NewPaymentService(cfg)
+	svc := payments.NewPaymentService(cfg)
 
 	NewServer := &Server{
 		cfg:            cfg,

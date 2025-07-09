@@ -2,6 +2,7 @@ package server
 
 import (
 	"backend/internal/models"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -39,8 +40,18 @@ func (s *Server) PingHandler(c echo.Context) error {
 }
 
 func (s *Server) PaymentHandler(c echo.Context) error {
-	// recebendo uma struct/payload -> models.Payment
-	// mandar pro service de pagamentos, retornar a resposta
+	var paymentReq models.PaymentRequest
+	if err := c.Bind(&paymentReq); err != nil {
+		return c.JSON(http.StatusBadRequest, models.FailureResponse{
+			Message:   "Invalid request body. Unable to bind.",
+			Timestamp: time.Now().Format(time.RFC3339),
+		})
+	}
+
+	slog.Info("PAYMENT-HANDLER: Request received", "paymentReq", paymentReq)
+	// Do something later
+
+	s.paymentService.ProcessPayment(c.Request().Context(), &paymentReq)
 
 	return c.JSON(http.StatusOK, models.SuccessResponse{
 		Message:   "Everything working as intenteded in payments endpoint",

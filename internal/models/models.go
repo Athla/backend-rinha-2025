@@ -1,7 +1,5 @@
 package models
 
-import "time"
-
 type Money struct {
 	Value          int
 	ConversionRate int
@@ -22,7 +20,7 @@ func (m *Money) Parse() string {
 }
 
 type PaymentRequest struct {
-	CorrelationId string    `json:"correlation_id"`
-	Amount        int16     `json:"amount"`
-	RequestAt     time.Time `json:"request_at"`
+	CorrelationId string `json:"correlationId"`
+	Amount        int16  `json:"amount"`
+	RequestedAt   string `json:"requestedAt"`
 }

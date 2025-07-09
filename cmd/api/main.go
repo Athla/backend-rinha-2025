@@ -38,7 +38,6 @@ func gracefulShutdown(apiServer *http.Server, done chan bool) {
 }
 
 func main() {
-
 	fmt.Println(time.Now().Format(time.RFC3339))
 
 	server := server.NewServer()

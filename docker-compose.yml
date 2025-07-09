@@ -5,6 +5,8 @@ services:
       dockerfile: Dockerfile
       target: prod
     restart: unless-stopped
+    volumes:
+      - .:/usr/src/app
     ports:
       - ${PORT}:${PORT}
     environment:
