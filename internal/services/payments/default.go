@@ -70,7 +70,6 @@ func (p *defaultPaymentProcessor) Process(req *models.PaymentRequest) error {
 	return nil
 }
 
-func newDefaultPaymentProcessor() (*defaultPaymentProcessor, error) {
-
+func newDefaultPaymentProcessor(serviceAddr string, db repository.SQLRepository) (*defaultPaymentProcessor, error) {
 	return nil, nil
 }

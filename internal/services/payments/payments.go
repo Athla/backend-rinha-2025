@@ -4,6 +4,8 @@ import (
 	"backend/config"
 	"backend/internal/models"
 	"context"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type PaymentProcessor interface {
@@ -16,12 +18,14 @@ type Service struct {
 }
 
 func NewPaymentService(cfg *config.Config) *Service {
-	mainService, err := newDefaultPaymentProcessor()
+	// Initalize db connection
+	dbtx, err := sqlx.Open("sqlite3", cfg.SqlConnString)
+	mainService, err := newDefaultPaymentProcessor(cfg.DefaultServiceAddr, dbtx)
 	if err != nil {
 		panic(err)
 	}
 
-	fallbackService, err := newFallbackPaymentProcessor()
+	fallbackService, err := newFallbackPaymentProcessor(cfg.FallbackServiceAddr, dbtx)
 	if err != nil {
 		panic(err)
 	}

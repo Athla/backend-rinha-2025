@@ -19,7 +19,7 @@ type fallbackPaymentProcessor struct {
 	db           repository.SQLRepository
 }
 
-func newFallbackPaymentProcessor() (*fallbackPaymentProcessor, error) {
+func newFallbackPaymentProcessor(serviceAddr string, db repository.SQLRepository) (*fallbackPaymentProcessor, error) {
 	return nil, nil
 }
 
