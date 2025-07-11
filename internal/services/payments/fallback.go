@@ -16,10 +16,10 @@ import (
 
 type fallbackPaymentProcessor struct {
 	processorUrl string
-	db           repository.SQLRepository
+	db           repository.SQL
 }
 
-func newFallbackPaymentProcessor(serviceAddr string, db repository.SQLRepository) (*fallbackPaymentProcessor, error) {
+func newFallbackPaymentProcessor(serviceAddr string, db repository.SQL) (*fallbackPaymentProcessor, error) {
 	return nil, nil
 }
 

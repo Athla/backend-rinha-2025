@@ -2,7 +2,7 @@ package server
 
 import (
 	"backend/internal/models"
-	"log/slog"
+	"github.com/charmbracelet/log"
 	"net/http"
 	"time"
 
@@ -12,7 +12,7 @@ import (
 
 func (s *Server) RegisterRoutes() http.Handler {
 	e := echo.New()
-	e.Use(middleware.Logger())
+	// e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
@@ -42,28 +42,34 @@ func (s *Server) PingHandler(c echo.Context) error {
 func (s *Server) PaymentHandler(c echo.Context) error {
 	var paymentReq models.PaymentRequest
 	if err := c.Bind(&paymentReq); err != nil {
+		log.Errorf("Unable to bind req due: %v", err)
 		return c.JSON(http.StatusBadRequest, models.FailureResponse{
 			Message:   "Invalid request body. Unable to bind.",
 			Timestamp: time.Now().Format(time.RFC3339),
 		})
 	}
 
-	slog.Info("PAYMENT-HANDLER: Request received", "paymentReq", paymentReq)
 	// Do something later
 
-	s.paymentService.ProcessPayment(c.Request().Context(), &paymentReq)
+	go s.paymentService.ProcessPayment(c.Request().Context(), &paymentReq)
 
 	return c.JSON(http.StatusOK, models.SuccessResponse{
-		Message:   "Everything working as intenteded in payments endpoint",
+		Message:   "Payment received!",
 		Timestamp: time.Now().Format(time.RFC3339),
 	})
 }
 
 func (s *Server) PaymentsSummaryHandler(c echo.Context) error {
 
-	return c.JSON(http.StatusOK, models.SuccessResponse{
-		Message:   "Everything working as intenteded in the endpoint payments summary",
-		Timestamp: time.Now().Format(time.RFC3339),
+	return c.JSON(http.StatusOK, models.SummaryResponse{
+		Default: models.ReqSummary{
+			TotalRequest: 10000,
+			TotalAmount:  102391231.0,
+		},
+		Fallback: models.ReqSummary{
+			TotalRequest: 10000,
+			TotalAmount:  102391231.0,
+		},
 	})
 
 }

@@ -12,23 +12,34 @@ import (
 
 const createPaymentRecord = `-- name: CreatePaymentRecord :one
 INSERT INTO PAYMENTS (
-  CORRELATION_ID, AMOUNT, TIMESTAMP
+  CORRELATION_ID, AMOUNT, TIMESTAMP, PROCESSOR
 ) VALUES (
-  ?, ?, ?
+  ?, ?, ?, ?
 )
-RETURNING correlation_id, amount, timestamp
+RETURNING correlation_id, amount, timestamp, processor
 `
 
 type CreatePaymentRecordParams struct {
 	CorrelationID interface{}
 	Amount        interface{}
 	Timestamp     sql.NullTime
+	Processor     interface{}
 }
 
 func (q *Queries) CreatePaymentRecord(ctx context.Context, arg CreatePaymentRecordParams) (Payment, error) {
-	row := q.db.QueryRowContext(ctx, createPaymentRecord, arg.CorrelationID, arg.Amount, arg.Timestamp)
+	row := q.db.QueryRowContext(ctx, createPaymentRecord,
+		arg.CorrelationID,
+		arg.Amount,
+		arg.Timestamp,
+		arg.Processor,
+	)
 	var i Payment
-	err := row.Scan(&i.CorrelationID, &i.Amount, &i.Timestamp)
+	err := row.Scan(
+		&i.CorrelationID,
+		&i.Amount,
+		&i.Timestamp,
+		&i.Processor,
+	)
 	return i, err
 }
 
@@ -37,15 +48,21 @@ SELECT CORRELATION_ID, AMOUNT, TIMESTAMP FROM PAYMENTS
 ORDER BY TIMESTAMP DESC
 `
 
-func (q *Queries) GetAllPayments(ctx context.Context) ([]Payment, error) {
+type GetAllPaymentsRow struct {
+	CorrelationID interface{}
+	Amount        interface{}
+	Timestamp     sql.NullTime
+}
+
+func (q *Queries) GetAllPayments(ctx context.Context) ([]GetAllPaymentsRow, error) {
 	rows, err := q.db.QueryContext(ctx, getAllPayments)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Payment
+	var items []GetAllPaymentsRow
 	for rows.Next() {
-		var i Payment
+		var i GetAllPaymentsRow
 		if err := rows.Scan(&i.CorrelationID, &i.Amount, &i.Timestamp); err != nil {
 			return nil, err
 		}
@@ -65,9 +82,15 @@ SELECT CORRELATION_ID, AMOUNT, TIMESTAMP FROM PAYMENTS
 WHERE CORRELATION_ID = ? LIMIT 1
 `
 
-func (q *Queries) GetPaymentByCorrelationId(ctx context.Context, correlationID interface{}) (Payment, error) {
+type GetPaymentByCorrelationIdRow struct {
+	CorrelationID interface{}
+	Amount        interface{}
+	Timestamp     sql.NullTime
+}
+
+func (q *Queries) GetPaymentByCorrelationId(ctx context.Context, correlationID interface{}) (GetPaymentByCorrelationIdRow, error) {
 	row := q.db.QueryRowContext(ctx, getPaymentByCorrelationId, correlationID)
-	var i Payment
+	var i GetPaymentByCorrelationIdRow
 	err := row.Scan(&i.CorrelationID, &i.Amount, &i.Timestamp)
 	return i, err
 }
@@ -83,16 +106,61 @@ type GetPaymentsByIntervalParams struct {
 	ToTimestamp   sql.NullTime
 }
 
-func (q *Queries) GetPaymentsByInterval(ctx context.Context, arg GetPaymentsByIntervalParams) ([]Payment, error) {
+type GetPaymentsByIntervalRow struct {
+	CorrelationID interface{}
+	Amount        interface{}
+	Timestamp     sql.NullTime
+}
+
+func (q *Queries) GetPaymentsByInterval(ctx context.Context, arg GetPaymentsByIntervalParams) ([]GetPaymentsByIntervalRow, error) {
 	rows, err := q.db.QueryContext(ctx, getPaymentsByInterval, arg.FromTimestamp, arg.ToTimestamp)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Payment
+	var items []GetPaymentsByIntervalRow
 	for rows.Next() {
-		var i Payment
+		var i GetPaymentsByIntervalRow
 		if err := rows.Scan(&i.CorrelationID, &i.Amount, &i.Timestamp); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const summarizePaymentsByInterval = `-- name: SummarizePaymentsByInterval :many
+SELECT SUM(AMOUNT), PROCESSOR FROM PAYMENTS
+WHERE TIMESTAMP BETWEEN ? AND ?
+GROUP BY PROCESSOR
+`
+
+type SummarizePaymentsByIntervalParams struct {
+	FromTimestamp sql.NullTime
+	ToTimestamp   sql.NullTime
+}
+
+type SummarizePaymentsByIntervalRow struct {
+	Sum       sql.NullFloat64
+	Processor interface{}
+}
+
+func (q *Queries) SummarizePaymentsByInterval(ctx context.Context, arg SummarizePaymentsByIntervalParams) ([]SummarizePaymentsByIntervalRow, error) {
+	rows, err := q.db.QueryContext(ctx, summarizePaymentsByInterval, arg.FromTimestamp, arg.ToTimestamp)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []SummarizePaymentsByIntervalRow
+	for rows.Next() {
+		var i SummarizePaymentsByIntervalRow
+		if err := rows.Scan(&i.Sum, &i.Processor); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

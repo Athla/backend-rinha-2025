@@ -3,9 +3,11 @@ package payments
 import (
 	"backend/config"
 	"backend/internal/models"
+	"backend/internal/repository"
 	"context"
 
 	"github.com/jmoiron/sqlx"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 type PaymentProcessor interface {
@@ -19,7 +21,9 @@ type Service struct {
 
 func NewPaymentService(cfg *config.Config) *Service {
 	// Initalize db connection
-	dbtx, err := sqlx.Open("sqlite3", cfg.SqlConnString)
+	dbconn, err := sqlx.Open("sqlite3", cfg.SqlConnString)
+	dbtx := repository.New(dbconn)
+
 	mainService, err := newDefaultPaymentProcessor(cfg.DefaultServiceAddr, dbtx)
 	if err != nil {
 		panic(err)
@@ -49,4 +53,8 @@ func (s *Service) ProcessPayment(ctx context.Context, paymentRequest *models.Pay
 	}
 
 	return nil
+}
+
+func (s *Service) RetrievePayments(ctx context.Context, from, to string) {
+
 }

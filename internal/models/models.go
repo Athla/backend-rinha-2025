@@ -20,7 +20,7 @@ func (m *Money) Parse() string {
 }
 
 type PaymentRequest struct {
-	CorrelationId string `json:"correlationId"`
-	Amount        int16  `json:"amount"`
-	RequestedAt   string `json:"requestedAt"`
+	CorrelationId string  `json:"correlationId"`
+	Amount        float64 `json:"amount"`
+	RequestedAt   string  `json:"requestedAt"`
 }

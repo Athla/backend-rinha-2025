@@ -12,4 +12,5 @@ type Payment struct {
 	CorrelationID interface{}
 	Amount        interface{}
 	Timestamp     sql.NullTime
+	Processor     interface{}
 }

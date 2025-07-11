@@ -16,7 +16,7 @@ import (
 
 type defaultPaymentProcessor struct {
 	processorUrl string
-	db           repository.SQLRepository
+	db           repository.SQL
 }
 
 func (p *defaultPaymentProcessor) Process(req *models.PaymentRequest) error {
@@ -70,6 +70,6 @@ func (p *defaultPaymentProcessor) Process(req *models.PaymentRequest) error {
 	return nil
 }
 
-func newDefaultPaymentProcessor(serviceAddr string, db repository.SQLRepository) (*defaultPaymentProcessor, error) {
+func newDefaultPaymentProcessor(serviceAddr string, db repository.SQL) (*defaultPaymentProcessor, error) {
 	return nil, nil
 }

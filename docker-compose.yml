@@ -15,5 +15,5 @@ services:
     develop:
       watch:
         - action: sync+restart
-          path: ./
+          path: ./internal/
           target: /usr/src/app 
